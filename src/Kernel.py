@@ -3,6 +3,7 @@ import modules
 
 class Kernel():
     def __init__(self):
+        
         self.loadedModule={}
         self.sharedModuleData={}
         self.privateModuleData={}
@@ -18,10 +19,8 @@ class Kernel():
             self.loadedModule[mod_name]={}
             self.loadedModule[mod_name]["instance"]=mod_instance
             self.loadedModule[mod_name]["callback"]={}
-            
             mod_instance.load(self.registerLocalCallback,self.registerGlobalCallback)
-            self.loadedModule[mod_name]["htmlConfigcallback"]=mod_instance.getHtmlConfigCallback()
-            self.loadedModule[mod_name]["htmlConfigcallback"]()
+          
             
     def unloadModule(self,moduleName=""):
         if moduleName=="":
@@ -35,14 +34,29 @@ class Kernel():
     def reloadModule(self):
         self.unloadModule()
         self.loadModules()
-    def test(self):
-        self.loadedModule["plugin"]["callback"]["GetRequest"]("a query")
     def registerGlobalCallback(self,event,callback):
-        if event not in self.globalCallback:
+        if event not in self.globalCallback.keys():
             self.globalCallback[event]=[]
         self.globalCallback[event].append(callback)    
     def registerLocalCallback(self,event,callback,moduleName):
-        self.loadedModule[moduleName]["callback"][event]=callback    
+        print "registring callback "+event+" in module "+moduleName
+        self.loadedModule[moduleName]["callback"][event]=callback
+    def raiseGlobalEvent(self,event,param):
+        if event in self.globalCallback["event"].keys():
+            for callback in self.globalCallback["event"]:
+                callback(param)
+    def raiseLocalEvent(self,event,param,moduleName):
+        if moduleName not in self.loadedModule.keys():
+            print moduleName+ "not loaded"
+            return
+        for key in self.loadedModule[moduleName]["callback"].keys():
+            if key==event:
+                self.loadedModule[moduleName]["callback"][event](param)
+                
+        
+        
+        
+        
             
             
         
@@ -51,4 +65,4 @@ class Kernel():
 tmp=Kernel()
 tmp.loadModules()
 #tmp.unloadModule()
-tmp.test()    
+tmp.raiseLocalEvent("GetRequest", "param", "plugin")    
