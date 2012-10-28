@@ -11,7 +11,8 @@ class Kernel():
         self.kernelprivateData={}
         self.globalCallback={}
         
-        
+    # load module from subfolder modules, allowing plugin module for testing purpose, need to change the loading process to avoid loading this module
+    # all every other plugin need to subclass this module
     def loadModules(self):
         for mod_name in modules.__all__:
             mod = __import__ ("modules." + mod_name, fromlist=modules.__all__) # on charge le module
